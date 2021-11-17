@@ -62,11 +62,10 @@ bool estBlanc(image img)
             return FALSE;
 
         else
-            return 
-                estBlanc(img->fils[0]) && 
-                estBlanc(img->fils[1]) && 
-                estBlanc(img->fils[2]) && 
-                estBlanc(img->fils[3]);
+            return estBlanc(img->fils[0]) &&
+                   estBlanc(img->fils[1]) &&
+                   estBlanc(img->fils[2]) &&
+                   estBlanc(img->fils[3]);
     }
 }
 
@@ -81,11 +80,10 @@ bool estNoire(image img)
             return TRUE;
 
         else
-            return 
-                estNoire(img->fils[0]) && 
-                estNoire(img->fils[1]) && 
-                estNoire(img->fils[2]) && 
-                estNoire(img->fils[3]);
+            return estNoire(img->fils[0]) &&
+                   estNoire(img->fils[1]) &&
+                   estNoire(img->fils[2]) &&
+                   estNoire(img->fils[3]);
     }
 }
 
@@ -100,16 +98,15 @@ image Copie(image img)
             return ConstruitNoire();
 
         else
-            return 
-                ConstruitComposee(Copie(img->fils[0]), Copie(img->fils[1]), Copie(img->fils[2]), Copie(img->fils[3]));
+            return ConstruitComposee(Copie(img->fils[0]), Copie(img->fils[1]), Copie(img->fils[2]), Copie(img->fils[3]));
     }
 }
 
 bool tousFilsNul(image img)
 {
     for (int i = 0; i < 3; i++)
-        if(img->fils[0] != NULL)
-            return FALSE;    
+        if (img->fils[0] != NULL)
+            return FALSE;
 
     return TRUE;
 }
@@ -123,8 +120,8 @@ void affichageNormaleBis(image img)
     {
         if (img->toutnoir)
             printf("N");
-        
-        else 
+
+        else
         {
             printf("+");
             affichageNormaleBis(img->fils[0]);
@@ -141,27 +138,60 @@ void affichageNormale(image img)
     printf("\n");
 }
 
+void rendMemoire(image img)
+{
+    if (img != NULL)
+    {
+        for (int i = 0; i < 3; i++)
+            rendMemoire(img->fils[i]);
+
+        free(img);
+    }
+}
+
+image Transforme(image img)
+{
+    if (img == NULL)
+        return ConstruitNoire();
+
+    else
+    {
+        if (img->toutnoir)
+            return ConstruitBlanc();
+
+        else
+            return ConstruitComposee(Transforme(img->fils[0]), Transforme(img->fils[1]), Transforme(img->fils[2]), Transforme(img->fils[3]));
+    }
+}
+
 int main()
 {
     image noire = ConstruitNoire();
     image blanc = ConstruitBlanc();
 
-    image img_NNNB = ConstruitComposee(ConstruitComposee(noire, noire, noire, blanc), ConstruitComposee(blanc, blanc, blanc, noire), noire, blanc);
+    image img_1 = ConstruitComposee(
+        ConstruitComposee(ConstruitNoire(), ConstruitNoire(), ConstruitNoire(), ConstruitBlanc()),
+        ConstruitComposee(ConstruitBlanc(), ConstruitBlanc(), ConstruitBlanc(), ConstruitNoire()),
+        ConstruitNoire(), ConstruitBlanc());
 
     assert(estNoire(noire));
     assert(estBlanc(blanc));
     assert(!estNoire(blanc));
     assert(!estBlanc(noire));
-    
+
     printf("Test de la fonction affichage.\n");
     affichageNormale(noire);
     affichageNormale(blanc);
-    affichageNormale(img_NNNB);
+    affichageNormale(img_1);
 
     printf("\nAffichage de la fonction Copie.\n");
     affichageNormale(Copie(noire));
     affichageNormale(Copie(blanc));
 
+    image img_1_rev = Transforme(img_1);
+    affichageNormale(img_1_rev);
+
+    rendMemoire(img_1);
 
     return 0;
 }
