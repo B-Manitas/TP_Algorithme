@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #define AND &&
 #define OR ||
@@ -164,6 +165,21 @@ image Transforme(image img)
     }
 }
 
+float Aire(image img)
+{
+    if (img == NULL)
+        return 0;
+
+    else
+    {
+        if (img->toutnoir)
+            return 1;
+
+        else
+            return (Aire(img->fils[0]) + Aire(img->fils[1]) + Aire(img->fils[2]) + Aire(img->fils[3])) / 4;
+    }
+}
+
 int main()
 {
     image noire = ConstruitNoire();
@@ -173,6 +189,9 @@ int main()
         ConstruitComposee(ConstruitNoire(), ConstruitNoire(), ConstruitNoire(), ConstruitBlanc()),
         ConstruitComposee(ConstruitBlanc(), ConstruitBlanc(), ConstruitBlanc(), ConstruitNoire()),
         ConstruitNoire(), ConstruitBlanc());
+
+    image img_2 = ConstruitComposee(ConstruitNoire(), ConstruitBlanc(), ConstruitNoire(),
+                                    ConstruitComposee(ConstruitNoire(), ConstruitBlanc(), ConstruitNoire(), ConstruitBlanc()));
 
     assert(estNoire(noire));
     assert(estBlanc(blanc));
@@ -190,6 +209,8 @@ int main()
 
     image img_1_rev = Transforme(img_1);
     affichageNormale(img_1_rev);
+
+    printf("Aire(img_2): %f\n", Aire(img_2));
 
     rendMemoire(img_1);
 
