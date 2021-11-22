@@ -180,6 +180,32 @@ float Aire(image img)
     }
 }
 
+bool UnionNoire(image img1, image img2)
+{
+    if (img1 == NULL AND img2 == NULL)
+        return FALSE;
+
+    else
+    {
+        // Img1 et IMG 2 non tout noir sinon attrapé par condition 2
+        if (img1 == NULL)
+            return UnionNoire(img1, img2->fils[0]) &&
+                   UnionNoire(img1, img2->fils[1]) &&
+                   UnionNoire(img1, img2->fils[2]) &&
+                   UnionNoire(img1, img2->fils[3]);
+
+        else if (img2 == NULL)
+            return UnionNoire(img1->fils[0], img2) &&
+                   UnionNoire(img1->fils[1], img2) &&
+                   UnionNoire(img1->fils[2], img2) &&
+                   UnionNoire(img1->fils[3], img2);
+
+        // Img 1 ou Img2 est tout noir. 
+        else
+            return TRUE;
+    }
+}
+
 int main()
 {
     image noire = ConstruitNoire();
@@ -193,10 +219,24 @@ int main()
     image img_2 = ConstruitComposee(ConstruitNoire(), ConstruitBlanc(), ConstruitNoire(),
                                     ConstruitComposee(ConstruitNoire(), ConstruitBlanc(), ConstruitNoire(), ConstruitBlanc()));
 
+    image img_union_1 = ConstruitComposee(
+        ConstruitComposee(ConstruitNoire(), ConstruitBlanc(), ConstruitNoire(), ConstruitBlanc()),
+        ConstruitComposee(ConstruitBlanc(), ConstruitNoire(), ConstruitNoire(), ConstruitBlanc()),
+        ConstruitBlanc(),
+        ConstruitComposee(ConstruitNoire(), ConstruitNoire(), ConstruitBlanc(), ConstruitBlanc()));
+
+    image img_union_2 = ConstruitComposee(
+        ConstruitNoire(),
+        ConstruitComposee(ConstruitNoire(), ConstruitBlanc(), ConstruitNoire(), ConstruitNoire()),
+        ConstruitNoire(),
+        ConstruitComposee(ConstruitNoire(), ConstruitBlanc(), ConstruitNoire(), ConstruitBlanc()));
+
     assert(estNoire(noire));
     assert(estBlanc(blanc));
     assert(!estNoire(blanc));
     assert(!estBlanc(noire));
+
+    assert(UnionNoire(img_union_1, img_union_2));
 
     printf("Test de la fonction affichage.\n");
     affichageNormale(noire);
