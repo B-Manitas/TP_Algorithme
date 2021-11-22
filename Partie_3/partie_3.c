@@ -185,25 +185,26 @@ bool UnionNoire(image img1, image img2)
     if (img1 == NULL AND img2 == NULL)
         return FALSE;
 
+    else if ((img1 != NULL AND img1->toutnoir) OR(img2 != NULL AND img2->toutnoir))
+        return TRUE;
+
+    else if (img1 == NULL AND !img2->toutnoir)
+        return UnionNoire(img1, img2->fils[0]) AND
+            UnionNoire(img1, img2->fils[1]) AND
+                UnionNoire(img1, img2->fils[2]) AND
+                    UnionNoire(img1, img2->fils[3]);
+
+    else if (img2 == NULL AND !img1->toutnoir)
+        return UnionNoire(img2, img1->fils[0]) AND
+            UnionNoire(img2, img1->fils[1]) AND
+                UnionNoire(img2, img1->fils[2]) AND
+                    UnionNoire(img2, img1->fils[3]);
+
     else
-    {
-        // Img1 et IMG 2 non tout noir sinon attrapé par condition 2
-        if (img1 == NULL)
-            return UnionNoire(img1, img2->fils[0]) &&
-                   UnionNoire(img1, img2->fils[1]) &&
-                   UnionNoire(img1, img2->fils[2]) &&
-                   UnionNoire(img1, img2->fils[3]);
-
-        else if (img2 == NULL)
-            return UnionNoire(img1->fils[0], img2) &&
-                   UnionNoire(img1->fils[1], img2) &&
-                   UnionNoire(img1->fils[2], img2) &&
-                   UnionNoire(img1->fils[3], img2);
-
-        // Img 1 ou Img2 est tout noir. 
-        else
-            return TRUE;
-    }
+        return UnionNoire(img1->fils[0], img2->fils[0]) AND
+            UnionNoire(img1->fils[1], img2->fils[1]) AND
+                UnionNoire(img1->fils[2], img2->fils[2]) AND
+                    UnionNoire(img1->fils[3], img2->fils[3]);
 }
 
 int main()
@@ -236,7 +237,7 @@ int main()
     assert(!estNoire(blanc));
     assert(!estBlanc(noire));
 
-    assert(UnionNoire(img_union_1, img_union_2));
+    assert(!UnionNoire(img_union_1, img_union_2));
 
     printf("Test de la fonction affichage.\n");
     affichageNormale(noire);
