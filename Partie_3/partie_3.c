@@ -139,15 +139,17 @@ void affichageNormale(image img)
     printf("\n");
 }
 
-void rendMemoire(image img)
+void rendMemoire(image *img)
 {
-    if (img != NULL)
+    if ((*img) != NULL)
     {
-        for (int i = 0; i < 3; i++)
-            rendMemoire(img->fils[i]);
+        for (int i = 0; i < 4; i++)
+            rendMemoire(&((*img)->fils[i]));
 
-        free(img);
+        free(*img);
     }
+
+    *img = NULL;
 }
 
 image Transforme(image img)
@@ -207,6 +209,40 @@ bool UnionNoire(image img1, image img2)
                     UnionNoire(img1->fils[3], img2->fils[3]);
 }
 
+void Negatif(image *img)
+{
+    if ((*img) == NULL)
+        *img = ConstruitNoire();
+
+    else if ((*img)->toutnoir)
+        rendMemoire(img);
+
+    else
+        for (int i = 0; i < 4; i++)
+            Negatif(&((*img)->fils[i]));
+}
+
+image CreateImageStr(char *str)
+{    
+    if (*str == '+')
+        return ConstruitComposee(CreateImageStr(str + 1), CreateImageStr(str + 2), CreateImageStr(str + 3), CreateImageStr(str + 4)); 
+    
+    else if (*str == 'N')
+        return ConstruitNoire();
+
+    else
+        return ConstruitBlanc();
+}
+
+image Lecture()
+{
+    char str[100];
+    printf("\nEnter your quadtree.\n=> ");
+    scanf("%s", str);
+
+    return CreateImageStr(str);
+}
+
 int main()
 {
     image noire = ConstruitNoire();
@@ -253,7 +289,13 @@ int main()
 
     printf("Aire(img_2): %f\n", Aire(img_2));
 
-    rendMemoire(img_1);
+    rendMemoire(&img_1);
+
+    printf("\nTest de la fonction Negatif.\n");
+    affichageNormale(img_2);
+    Negatif(&img_2);
+    affichageNormale(img_2);
+    affichageNormale(Lecture());
 
     return 0;
 }
