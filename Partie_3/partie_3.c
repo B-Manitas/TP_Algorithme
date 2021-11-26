@@ -139,6 +139,35 @@ void affichageNormale(image img)
     printf("\n");
 }
 
+void affichageProfondeurBis(image img, int profondeur)
+{
+    if (img == NULL)
+        printf("B%d ", profondeur);
+
+    else
+    {
+        if (img->toutnoir)
+            printf("N%d ", profondeur);
+
+        else
+        {
+            printf("+%d ", profondeur);
+            profondeur += 1;
+            affichageProfondeurBis(img->fils[0], profondeur);
+            affichageProfondeurBis(img->fils[1], profondeur);
+            affichageProfondeurBis(img->fils[2], profondeur);
+            affichageProfondeurBis(img->fils[3], profondeur);
+        }
+    }
+}
+
+void affichageProfondeur(image img)
+{
+    int n = 0;
+    affichageProfondeurBis(img, n);
+    printf("\n");
+}
+
 void rendMemoire(image *img)
 {
     if ((*img) != NULL)
@@ -223,10 +252,10 @@ void Negatif(image *img)
 }
 
 image CreateImageStr(char *str)
-{    
+{
     if (*str == '+')
-        return ConstruitComposee(CreateImageStr(str + 1), CreateImageStr(str + 2), CreateImageStr(str + 3), CreateImageStr(str + 4)); 
-    
+        return ConstruitComposee(CreateImageStr(str + 1), CreateImageStr(str + 2), CreateImageStr(str + 3), CreateImageStr(str + 4));
+
     else if (*str == 'N')
         return ConstruitNoire();
 
@@ -243,10 +272,45 @@ image Lecture()
     return CreateImageStr(str);
 }
 
+int BisCompteSousImageGris(image img)
+{
+    float aire = Aire(img);
+
+    if (aire >= 1. / 3 && aire <= 2. / 3)
+        return 1;
+
+    else
+        return 0;
+}
+
+int CompteSousImagegrise(image img)
+{
+    if (img == NULL)
+        return BisCompteSousImageGris(img);
+
+    else
+        return BisCompteSousImageGris(img) +
+               CompteSousImagegrise(img->fils[0]) +
+               CompteSousImagegrise(img->fils[1]) +
+               CompteSousImagegrise(img->fils[2]) +
+               CompteSousImagegrise(img->fils[3]);
+}
+
 int main()
 {
     image noire = ConstruitNoire();
     image blanc = ConstruitBlanc();
+
+    image img_aff = ConstruitComposee(
+        ConstruitNoire(),
+        ConstruitComposee(ConstruitBlanc(), ConstruitBlanc(), ConstruitNoire(), ConstruitBlanc()),
+        ConstruitBlanc(),
+        ConstruitComposee(ConstruitNoire(),
+                          ConstruitComposee(ConstruitNoire(), ConstruitNoire(), ConstruitBlanc(),
+                                            ConstruitComposee(ConstruitNoire(), ConstruitBlanc(), ConstruitNoire(),
+                                                              ConstruitNoire())),
+                          ConstruitBlanc(),
+                          ConstruitNoire()));
 
     image img_1 = ConstruitComposee(
         ConstruitComposee(ConstruitNoire(), ConstruitNoire(), ConstruitNoire(), ConstruitBlanc()),
@@ -268,6 +332,28 @@ int main()
         ConstruitNoire(),
         ConstruitComposee(ConstruitNoire(), ConstruitBlanc(), ConstruitNoire(), ConstruitBlanc()));
 
+    image img_grise_1 = ConstruitComposee(
+        ConstruitNoire(),
+        ConstruitComposee(ConstruitBlanc(), ConstruitNoire(), ConstruitBlanc(), ConstruitBlanc()),
+        ConstruitBlanc(),
+        ConstruitComposee(ConstruitNoire(), ConstruitBlanc(), ConstruitBlanc(), ConstruitBlanc()));
+
+    image img_grise_2 = ConstruitComposee(
+        ConstruitBlanc(),
+        ConstruitNoire(),
+        ConstruitComposee(ConstruitNoire(),
+                          ConstruitComposee(ConstruitBlanc(), ConstruitNoire(), ConstruitBlanc(), ConstruitBlanc()),
+                          ConstruitBlanc(),
+                          ConstruitComposee(ConstruitNoire(),
+                                            ConstruitBlanc(),
+                                            ConstruitBlanc(),
+                                            ConstruitBlanc())),
+        ConstruitComposee(
+            ConstruitNoire(),
+            ConstruitComposee(ConstruitBlanc(), ConstruitNoire(), ConstruitBlanc(), ConstruitBlanc()),
+            ConstruitBlanc(),
+            ConstruitComposee(ConstruitNoire(), ConstruitNoire(), ConstruitBlanc(), ConstruitBlanc())));
+
     assert(estNoire(noire));
     assert(estBlanc(blanc));
     assert(!estNoire(blanc));
@@ -279,6 +365,12 @@ int main()
     affichageNormale(noire);
     affichageNormale(blanc);
     affichageNormale(img_1);
+    affichageNormale(img_aff);
+    affichageProfondeur(img_aff);
+
+    affichageProfondeur(noire);
+    affichageProfondeur(blanc);
+    affichageProfondeur(img_1);
 
     printf("\nAffichage de la fonction Copie.\n");
     affichageNormale(Copie(noire));
@@ -295,7 +387,12 @@ int main()
     affichageNormale(img_2);
     Negatif(&img_2);
     affichageNormale(img_2);
-    affichageNormale(Lecture());
+
+    // printf("\nTest de la fonction Lecture.\n");
+    // affichageNormale(Lecture());
+
+    assert(CompteSousImagegrise(img_grise_1) == 1);
+    assert(CompteSousImagegrise(img_grise_2) == 4);
 
     return 0;
 }
